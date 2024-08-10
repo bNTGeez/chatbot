@@ -1,11 +1,13 @@
 "use client";
 import { Box, Stack, TextField, Button } from "@mui/material";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+
 export default function Home() {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content: `Hi! I'm the Headstarter support assistant. How can I help you today?`,
+      content: `Hi! I am your AI Personal Trainer! How can I help you today?`,
     },
   ]);
 
@@ -15,9 +17,9 @@ export default function Home() {
       ...messages,
       { role: "user", content: message },
       {
-        role: 'assistant',
-        content: ''
-      }
+        role: "assistant",
+        content: "",
+      },
     ]);
     const response = fetch("/api/chat", {
       method: "POST",
@@ -39,7 +41,10 @@ export default function Home() {
         setMessages((messages) => {
           let lastMessage = messages[messages.length - 1];
           let otherMessages = messages.slice(0, messages.length - 1);
-          return [...otherMessages, {...lastMessage, content: lastMessage.content + text},];
+          return [
+            ...otherMessages,
+            { ...lastMessage, content: lastMessage.content + text },
+          ];
         });
 
         return reader.read().then(processText);
@@ -48,6 +53,7 @@ export default function Home() {
   };
 
   const [message, setMessage] = useState("");
+
   return (
     <Box
       width="100vw"
@@ -90,7 +96,7 @@ export default function Home() {
                 borderRadius={16}
                 p={2}
               >
-                {message.content}
+                <ReactMarkdown>{message.content}</ReactMarkdown>
               </Box>
             </Box>
           ))}
