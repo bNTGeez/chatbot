@@ -7,9 +7,11 @@ export default function Home() {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content: `Hi! I am your AI Personal Trainer! How can I help you today?`,
+      content: `Hi! I am your Code Buddy for Javascript! How can I help you today?`,
     },
   ]);
+
+  const [message, setMessage] = useState("");
 
   const sendMessage = async () => {
     setMessage("");
@@ -21,7 +23,7 @@ export default function Home() {
         content: "",
       },
     ]);
-    const response = fetch("/api/chat", {
+    const response = await fetch("/api/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -51,8 +53,6 @@ export default function Home() {
       });
     });
   };
-
-  const [message, setMessage] = useState("");
 
   return (
     <Box

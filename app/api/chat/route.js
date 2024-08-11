@@ -1,17 +1,28 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+import dotenv from "dotenv";
+import { Pinecone } from "@pinecone-database/pinecone";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { loadQAStuffChain } from "langchain/chains";
+import { Document } from "langchain/document";
+import { OpenAI as LangchainOpenAI } from "@langchain/openai";
+
+// Load env
+dotenv.config({ path: ".env.local" });
 
 const systemPrompt = `
-You are an AI customer support assistant for a personal trainer's services. Your role is to assist clients and potential clients by providing clear, friendly, and professional responses to their inquiries. You are knowledgeable about the personal trainer's offerings, including workout plans, nutrition guidance, scheduling, and pricing. Your goal is to help clients achieve their fitness goals by guiding them through the services available, answering any questions they may have, and providing motivation and encouragement.
+You are an AI customer support assistant specialized in JavaScript, a versatile programming language used for web development, servers, games, and more. Your role is to provide clear, concise, and accurate information about JavaScript concepts, syntax, best practices, and problem-solving techniques. You are designed to assist both beginners and experienced developers, offering guidance that ranges from basic programming fundamentals to advanced topics like asynchronous programming, frameworks, and libraries.
 
-When assisting clients, make sure to:
+When interacting with users, make sure to:
 
-Address their questions directly and accurately.
-Offer personalized recommendations based on their fitness level and goals.
-Provide clear instructions or next steps, such as how to schedule sessions or access resources.
-Offer motivational support to keep clients engaged and inspired on their fitness journey.
-Escalate complex issues or connect clients with the personal trainer for further assistance if necessary.
-Maintain a supportive and positive tone, as many clients may feel vulnerable or uncertain about their fitness journey. Your assistance should make them feel confident, motivated, and eager to work towards their goals.
+Assess their current skill level and tailor explanations to fit their understanding.
+Provide code examples and explanations for concepts and functions in JavaScript.
+Offer debugging tips and help resolve common and advanced coding issues.
+Guide users through learning resources, tutorials, and documentation relevant to their inquiries.
+Encourage best practices in code readability, performance, and maintainability.
+Answer questions related to integrating JavaScript with other technologies and platforms.
+Stay patient and encouraging, especially with users new to programming.
+Ensure your responses are engaging and supportive, aiming to boost the users’ confidence and proficiency in JavaScript programming. Your support should help users feel more competent and prepared to tackle their coding projects and challenges.
 `;
 
 export async function POST(req) {
@@ -20,9 +31,44 @@ export async function POST(req) {
   });
 
   const data = await req.json();
+  const userMessage = data[data.length - 1].content;
+
+  // RAG process
+  const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
+  const index = pc.index("chatbot");
+  const embeddings = new OpenAIEmbeddings({
+    openAIApiKey: process.env.OPENAI_API_KEY,
+    model: "text-embedding-3-small",
+  });
+
+  const queryEmbedding = await embeddings.embedQuery(userMessage);
+  const queryResponse = await index.query({
+    vector: queryEmbedding,
+    topK: 3,
+    includeMetadata: true,
+  });
+
+  const concatenatedText = queryResponse.matches
+    .map((match) => match.metadata.text)
+    .join(" ");
+
+  const llm = new LangchainOpenAI({ openAIApiKey: process.env.OPENAI_API_KEY });
+  const chain = loadQAStuffChain(llm);
+
+  const ragResult = await chain.invoke({
+    input_documents: [new Document({ pageContent: concatenatedText })],
+    question: userMessage,
+  });
+
+  const messages = [
+    { role: "system", content: systemPrompt },
+    ...data.slice(0, -1),
+    { role: "user", content: userMessage },
+    { role: "assistant", content: ragResult.text },
+  ];
 
   const completion = await openai.chat.completions.create({
-    messages: [{ role: "system", content: systemPrompt }, ...data],
+    messages,
     model: "gpt-4o-mini",
     stream: true,
   });
