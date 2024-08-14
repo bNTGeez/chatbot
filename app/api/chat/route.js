@@ -33,56 +33,27 @@ export const POST = async (req) => {
 
     if (responseText) {
       // If the responseText is true, it means the message was a casual conversation and doesnt need js help
-      return new NextResponse(responseText, {
-        status: 200,
-        headers: { "Content-Type": "text/plain" },
-      });
+      console.log("Returning early response:", responseText);
+      return new NextResponse(responseText);
     }
 
     const videoId = "lfmg-EJ8gm4";
 
-    // fetch youtube transcript from link, combines texts and splits into chunks
-    //const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
-    try {
-      console.log("Fetching YouTube transcript...");
-      const transcriptItems = await YoutubeTranscript.fetchTranscript(
-        "lfmg-EJ8gm4"
-      );
-      console.log("YouTube Transcript:", transcriptItems);
-    } catch (error) {
-      console.error(
-        "YouTube Transcript API Error:",
-        error.response?.data || error.message || error
-      );
-    }
+    //fetch youtube transcript from link, combines texts and splits into chunks
+    const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
+
     const text = transcriptItems.map((item) => item.text).join(" ");
     const chunks = splitText(text, 2000);
 
     // Generate a embeddings for each chunk
     const embeddings = await Promise.all(
       chunks.map(async (chunk, index) => {
-        /*
         const response = await openai.embeddings.create({
           model: "text-embedding-3-small",
           input: chunk,
           encoding_format: "float",
         });
-        */
 
-        try {
-          console.log("Starting OpenAI embeddings request...");
-          const response = await openai.embeddings.create({
-            model: "text-embedding-3-small",
-            input: "Test text",
-            encoding_format: "float",
-          });
-          console.log("OpenAI Embedding Response:", response.data); // Log the actual response data
-        } catch (error) {
-          console.error(
-            "OpenAI API Error:",
-            error.response?.data || error.message || error
-          );
-        }
         if (response && response.data && response.data.length > 0) {
           // each response has one chunk
           return {
@@ -96,28 +67,12 @@ export const POST = async (req) => {
         }
       })
     );
-    /*
+
     const index = pc.index("chatbot");
     const filteredEmbeddings = embeddings.filter((e) => e); // Filter out any undefined entries
-    
+
     await index.upsert(filteredEmbeddings);
-      */
-    try {
-      console.log("Starting Pinecone upsert...");
-      const dummyEmbedding = {
-        id: "dummy-embedding",
-        values: Array(768).fill(0), // Replace with appropriate dimension
-        metadata: { text: "Dummy data" },
-      };
-      const index = pc.index("chatbot");
-      await index.upsert([dummyEmbedding]);
-      console.log("Pinecone Upsert Succeeded");
-    } catch (error) {
-      console.error(
-        "Pinecone API Error:",
-        error.response?.data || error.message || error
-      );
-    }
+
     const queryResponse = await openai.embeddings.create({
       model: "text-embedding-3-small",
       input: queryText,
