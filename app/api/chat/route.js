@@ -1,96 +1,152 @@
-import { NextResponse } from "next/server";
 import OpenAI from "openai";
-import dotenv from "dotenv";
 import { Pinecone } from "@pinecone-database/pinecone";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { loadQAStuffChain } from "langchain/chains";
-import { Document } from "langchain/document";
-import { OpenAI as LangchainOpenAI } from "@langchain/openai";
-
-// Load env
+import { YoutubeTranscript } from "youtube-transcript";
+import dotenv from "dotenv";
+import { NextResponse } from "next/server";
 dotenv.config({ path: ".env.local" });
 
-const systemPrompt = `
-You are an AI customer support assistant specialized in JavaScript, a versatile programming language used for web development, servers, games, and more. Your role is to provide clear, concise, and accurate information about JavaScript concepts, syntax, best practices, and problem-solving techniques. You are designed to assist both beginners and experienced developers, offering guidance that ranges from basic programming fundamentals to advanced topics like asynchronous programming, frameworks, and libraries.
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
-When interacting with users, make sure to:
+const pc = new Pinecone({
+  apiKey: process.env.PINECONE_API_KEY,
+});
 
-Assess their current skill level and tailor explanations to fit their understanding.
-Provide code examples and explanations for concepts and functions in JavaScript.
-Offer debugging tips and help resolve common and advanced coding issues.
-Guide users through learning resources, tutorials, and documentation relevant to their inquiries.
-Encourage best practices in code readability, performance, and maintainability.
-Answer questions related to integrating JavaScript with other technologies and platforms.
-Stay patient and encouraging, especially with users new to programming.
-Ensure your responses are engaging and supportive, aiming to boost the users’ confidence and proficiency in JavaScript programming. Your support should help users feel more competent and prepared to tackle their coding projects and challenges.
-`;
+function splitText(text, chunkSize) {
+  const chunks = [];
+  for (let i = 0; i < text.length; i += chunkSize) {
+    chunks.push(text.substring(i, Math.min(text.length, i + chunkSize)));
+  }
+  return chunks;
+}
 
-export async function POST(req) {
-  const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
+export const POST = async (req) => {
+  try {
+    const queryObjects = await req.json();
 
-  const data = await req.json();
-  const userMessage = data[data.length - 1].content;
+    // Extracting text from user 
+    const queryText = queryObjects
+      .filter((obj) => obj.role === "user") 
+      .map((obj) => obj.content)
+      .join(" ");
 
-  // RAG process
-  const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
-  const index = pc.index("chatbot");
-  const embeddings = new OpenAIEmbeddings({
-    openAIApiKey: process.env.OPENAI_API_KEY,
-    model: "text-embedding-3-small",
-  });
+    const responseText = analyzeUserInput(queryText);
 
-  const queryEmbedding = await embeddings.embedQuery(userMessage);
-  const queryResponse = await index.query({
-    vector: queryEmbedding,
-    topK: 3,
-    includeMetadata: true,
-  });
+    if (responseText) {
+      // If the responseText is true, it means the message was a casual conversation and doesnt need js help
+      return new NextResponse(responseText, {
+        status: 200,
+        headers: { "Content-Type": "text/plain" },
+      });
+    }
 
-  const concatenatedText = queryResponse.matches
-    .map((match) => match.metadata.text)
-    .join(" ");
+    const videoId = "lfmg-EJ8gm4";
 
-  const llm = new LangchainOpenAI({ openAIApiKey: process.env.OPENAI_API_KEY });
-  const chain = loadQAStuffChain(llm);
+    // fetch youtube transcript from link, combines texts and splits into chunks
+    const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
+    const text = transcriptItems.map((item) => item.text).join(" ");
+    const chunks = splitText(text, 2000);
 
-  const ragResult = await chain.invoke({
-    input_documents: [new Document({ pageContent: concatenatedText })],
-    question: userMessage,
-  });
-
-  const messages = [
-    { role: "system", content: systemPrompt },
-    ...data.slice(0, -1),
-    { role: "user", content: userMessage },
-    { role: "assistant", content: ragResult.text },
-  ];
-
-  const completion = await openai.chat.completions.create({
-    messages,
-    model: "gpt-4o-mini",
-    stream: true,
-  });
-
-  const stream = new ReadableStream({
-    async start(controller) {
-      const encoder = new TextEncoder();
-      try {
-        for await (const chunk of completion) {
-          const content = chunk.choices[0]?.delta?.content;
-          if (content) {
-            const text = encoder.encode(content);
-            controller.enqueue(text);
-          }
+    // Generate a embeddings for each chunk
+    const embeddings = await Promise.all(
+      chunks.map(async (chunk, index) => {
+        const response = await openai.embeddings.create({
+          model: "text-embedding-3-small",
+          input: chunk,
+          encoding_format: "float",
+        });
+        if (response && response.data && response.data.length > 0) {
+          // each response has one chunk
+          return {
+            id: `${videoId}-${index}`, // Id for each chunk
+            values: response.data[0].embedding, // embedding vector
+            metadata: { text: chunk }, 
+          };
+        } else {
+          console.error("Invalid embedding response:", response);
+          return null; 
         }
-      } catch (err) {
-        controller.error(err);
-      } finally {
-        controller.close();
-      }
-    },
-  });
+      })
+    );
 
-  return new NextResponse(stream);
+    const index = pc.index("chatbot");
+    const filteredEmbeddings = embeddings.filter((e) => e); // Filter out any undefined entries
+
+    await index.upsert(filteredEmbeddings);
+
+    const queryResponse = await openai.embeddings.create({
+      model: "text-embedding-3-small",
+      input: queryText,
+      encoding_format: "float",
+    });
+    const queryVector = queryResponse.data[0].embedding;
+
+    const searchResults = await index.query({
+      vector: queryVector,
+      topK: 5, 
+      includeMetadata: true,
+    });
+
+    const relevantTexts = searchResults.matches
+      .filter((match) => match.metadata && match.metadata.text)
+      .map((match) => match.metadata.text)
+      .join("\n");
+
+    const systemPrompt = `
+      You are an assistant providing information based on the content of Bro Code's video. Always refer to the video content.
+    `;
+
+    const messages = [
+      {
+        role: "system",
+        content: systemPrompt,
+      },
+      {
+        role: "user",
+        content: queryText,
+      },
+      {
+        role: "assistant",
+        content: `Relevant information from the video:\n${relevantTexts}`,
+      },
+    ];
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: messages,
+      stream: true,
+    });
+
+    let generatedText = "";
+    for await (const chunk of completion) {
+      generatedText += chunk.choices[0]?.delta?.content || "";
+    }
+
+    return new NextResponse(generatedText, {
+      status: 200,
+      headers: { "Content-Type": "text/plain" },
+    });
+  } catch (error) {
+    console.error("Error processing request:", error);
+    return new NextResponse("Internal Server Error", {
+      status: 500,
+      headers: { "Content-Type": "text/plain" },
+    });
+  }
+};
+
+function analyzeUserInput(queryText) {
+  const lowercased = queryText.toLowerCase().trim();
+
+  if (lowercased === "hello" || lowercased === "hi") {
+    return "Hello! How can I assist you with JavaScript today?";
+  }
+
+  if (lowercased.startsWith("my name is")) {
+    const name = queryText.split(" ").pop();
+    return `Nice to meet you, ${name}! How can I help you with JavaScript today?`;
+  }
+
+  return null; // Return null to answer technical js questions
 }
