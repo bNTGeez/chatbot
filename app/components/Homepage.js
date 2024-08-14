@@ -44,7 +44,7 @@ const Homepage = () => {
           Bro Code Javascript Support AI
         </Typography>
         <Typography variant="h6">
-          Based off of Bro Code's 12 Hour Javascript Tutorial, you may ask this
+          Based off of Bro Code&apos;s 12 Hour Javascript Tutorial, you may ask this
           support bot any clarifying questions you may have.
         </Typography>
       </Box>
