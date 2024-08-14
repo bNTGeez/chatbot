@@ -1,9 +1,7 @@
 import OpenAI from "openai";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { YoutubeTranscript } from "youtube-transcript";
-import dotenv from "dotenv";
 import { NextResponse } from "next/server";
-dotenv.config({ path: ".env.local" });
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
