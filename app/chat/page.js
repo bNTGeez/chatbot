@@ -1,5 +1,5 @@
 "use client";
-import { Box, Stack, TextField, Button } from "@mui/material";
+import { Box, Stack, TextField, Button, Typography } from "@mui/material";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import Header from "../components/Header.js";
@@ -13,46 +13,56 @@ export default function Home() {
   ]);
 
   const [message, setMessage] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
 
   const sendMessage = async () => {
     setMessage("");
-    setMessages((messages) => [
-      ...messages,
-      { role: "user", content: message },
-      {
-        role: "assistant",
-        content: "",
-      },
-    ]);
+    const userMessage = { role: "user", content: message };
+    setMessages((messages) => [...messages, userMessage]);
+    setIsTyping(true);
+
     const response = await fetch("/api/chat", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify([...messages, { role: "user", content: message }]),
-    }).then(async (res) => {
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let result = "";
-      return reader.read().then(function processText({ done, value }) {
-        if (done) {
-          return result;
-        }
-        const text = decoder.decode(value || new Uint8Array(), {
-          stream: true,
-        });
-        setMessages((messages) => {
-          let lastMessage = messages[messages.length - 1];
-          let otherMessages = messages.slice(0, messages.length - 1);
-          return [
-            ...otherMessages,
-            { ...lastMessage, content: lastMessage.content + text },
-          ];
-        });
-
-        return reader.read().then(processText);
-      });
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify([userMessage]), // Send the current message as an array
     });
+
+    if (response.ok) {
+      const data = await response.text();
+      simulateTyping(data);
+    } else {
+      console.error("Failed to fetch the chat response");
+      setIsTyping(false);
+    }
+  };
+
+  const simulateTyping = (text) => {
+    const speed = 10; // Typing speed
+    let index = 0;
+    let currentText = "";
+    const length = text.length;
+
+    const typeNextChar = () => {
+      if (index < length) {
+        currentText += text.charAt(index);
+        index++;
+        setMessages((messages) => [
+          ...messages.slice(0, -1),
+          { role: "assistant", content: currentText },
+        ]);
+        if (index < length) {
+          setTimeout(typeNextChar, speed);
+        } else {
+          setIsTyping(false);
+        }
+      }
+    };
+
+    setMessages((messages) => [
+      ...messages,
+      { role: "assistant", content: "" },
+    ]);
+    typeNextChar();
   };
 
   return (
@@ -104,6 +114,11 @@ export default function Home() {
                   </Box>
                 </Box>
               ))}
+              {isTyping && (
+                <Typography color="white" style={{ margin: "0 auto" }}>
+                  Code Buddy is Typing...
+                </Typography>
+              )}
             </Stack>
             <Stack direction={"row"} spacing={2}>
               <TextField

@@ -25,9 +25,9 @@ export const POST = async (req) => {
   try {
     const queryObjects = await req.json();
 
-    // Extracting text from user 
+    // Extracting text from user
     const queryText = queryObjects
-      .filter((obj) => obj.role === "user") 
+      .filter((obj) => obj.role === "user")
       .map((obj) => obj.content)
       .join(" ");
 
@@ -61,11 +61,11 @@ export const POST = async (req) => {
           return {
             id: `${videoId}-${index}`, // Id for each chunk
             values: response.data[0].embedding, // embedding vector
-            metadata: { text: chunk }, 
+            metadata: { text: chunk },
           };
         } else {
           console.error("Invalid embedding response:", response);
-          return null; 
+          return null;
         }
       })
     );
@@ -84,7 +84,7 @@ export const POST = async (req) => {
 
     const searchResults = await index.query({
       vector: queryVector,
-      topK: 5, 
+      topK: 5,
       includeMetadata: true,
     });
 
@@ -94,7 +94,7 @@ export const POST = async (req) => {
       .join("\n");
 
     const systemPrompt = `
-      You are an assistant providing information based on the content of Bro Code's video. Always refer to the video content.
+      You are an AI trained named Code Buddy and your job is to assist with JavaScript queries based on specific content from the JavaScript tutorial video by Bro Code. Please restrict your assistance and examples to JavaScript only. Tell the user that you aren't able to process their request if they ask for non-javascript related questions.
     `;
 
     const messages = [
@@ -108,7 +108,7 @@ export const POST = async (req) => {
       },
       {
         role: "assistant",
-        content: `Relevant information from the video:\n${relevantTexts}`,
+        content: `Focusing on JavaScript, here's what's relevant from the video:\n${relevantTexts}`,
       },
     ];
 

@@ -1,6 +1,6 @@
-"use client"
+"use client";
 import React from "react";
-import Header from "./Header.js"
+import Header from "./Header.js";
 import { Box, Typography } from "@mui/material";
 
 const Homepage = () => {
@@ -16,16 +16,17 @@ const Homepage = () => {
         backgroundRepeat: "no-repeat",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center", // Centers content vertically
-        alignItems: "center", // Centers content horizontally
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
-      <Box sx={{
-          position: 'absolute', // Position Header absolutely
-          top: 0,               // Align to the top
-          left: 0,              // Align to the left
-          width: 'auto',        // Only as wide as needed
-          zIndex: 10            // Ensure it's on top of other content if overlapping
+      <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "auto",
+          zIndex: 10,
         }}
       >
         <Header />
@@ -34,9 +35,9 @@ const Homepage = () => {
         sx={{
           textAlign: "center",
           color: "white",
-          p: 3, // Adds padding around the text for spacing
-          textShadow: '0px 0px 8px rgba(0,0,0,0.7)', // Text shadow for better readability
-          maxWidth: "600px", // Restricts max width for better reading experience
+          p: 3,
+          textShadow: "0px 0px 8px rgba(0,0,0,0.7)",
+          maxWidth: "600px",
         }}
       >
         <Typography variant="h3" gutterBottom>
