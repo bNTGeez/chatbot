@@ -32,20 +32,20 @@ export const POST = async (req) => {
     const responseText = analyzeUserInput(queryText);
 
     if (responseText) {
-      // If the responseText is true, it means the message was a casual conversation and doesnt need js help
+      // If the responseText is true, it means the message was a casual conversation and doesn't need JS help
       console.log("Returning early response:", responseText);
       return new NextResponse(responseText);
     }
 
     const videoId = "lfmg-EJ8gm4";
 
-    //fetch youtube transcript from link, combines texts and splits into chunks
+    // Fetch YouTube transcript using the youtube-transcript package
     const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
 
     const text = transcriptItems.map((item) => item.text).join(" ");
     const chunks = splitText(text, 2000);
 
-    // Generate a embeddings for each chunk
+    // Generate embeddings for each chunk
     const embeddings = await Promise.all(
       chunks.map(async (chunk, index) => {
         const response = await openai.embeddings.create({
@@ -92,7 +92,7 @@ export const POST = async (req) => {
       .join("\n");
 
     const systemPrompt = `
-      You are an AI trained named Code Buddy and your job is to assist with JavaScript queries based on specific content from the JavaScript tutorial video by Bro Code. Please restrict your assistance and examples to JavaScript only. Tell the user that you aren't able to process their request if they ask for non-javascript related questions.
+      You are an AI named Code Buddy, and your job is to assist with JavaScript queries based on specific content from the JavaScript tutorial video by Bro Code. Please restrict your assistance and examples to JavaScript only. Tell the user that you aren't able to process their request if they ask for non-javascript related questions.
     `;
 
     const messages = [
@@ -146,5 +146,5 @@ function analyzeUserInput(queryText) {
     return `Nice to meet you, ${name}! How can I help you with JavaScript today?`;
   }
 
-  return null; // Return null to answer technical js questions
+  return null; // Return null to answer technical JS questions
 }
