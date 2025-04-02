@@ -1,32 +1,41 @@
 import OpenAI from "openai";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { YoutubeTranscript } from "youtube-transcript";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
+
+type ApiConfig = {
+  apiKey: string;
+};
+
+type Message = {
+  role: "system" | "user" | "assistant";
+  content: string;
+};
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+  apiKey: process.env.OPENAI_API_KEY!,
+} as ApiConfig);
 
 const pc = new Pinecone({
-  apiKey: process.env.PINECONE_API_KEY,
-});
+  apiKey: process.env.PINECONE_API_KEY!,
+} as ApiConfig);
 
-function splitText(text, chunkSize) {
-  const chunks = [];
+function splitText(text: string, chunkSize: number): string[] {
+  const chunks: string[] = [];
   for (let i = 0; i < text.length; i += chunkSize) {
     chunks.push(text.substring(i, Math.min(text.length, i + chunkSize)));
   }
   return chunks;
 }
 
-export const POST = async (req) => {
+export const POST = async (req: NextRequest) => {
   try {
-    const queryObjects = await req.json();
+    const queryObjects: Message[] = await req.json();
 
     // Extracting text from user
     const queryText = queryObjects
-      .filter((obj) => obj.role === "user")
-      .map((obj) => obj.content)
+      .filter((obj: Message) => obj.role === "user")
+      .map((obj: Message) => obj.content)
       .join(" ");
 
     const responseText = analyzeUserInput(queryText);
@@ -69,7 +78,7 @@ export const POST = async (req) => {
     );
 
     const index = pc.index("chatbot");
-    const filteredEmbeddings = embeddings.filter((e) => e); // Filter out any undefined entries
+    const filteredEmbeddings = embeddings.filter((e) => e) as any[];
 
     await index.upsert(filteredEmbeddings);
 
@@ -87,8 +96,8 @@ export const POST = async (req) => {
     });
 
     const relevantTexts = searchResults.matches
-      .filter((match) => match.metadata && match.metadata.text)
-      .map((match) => match.metadata.text)
+      .map((match) => match.metadata?.text ?? "")
+      .filter(Boolean)
       .join("\n");
 
     const systemPrompt = `
@@ -97,22 +106,22 @@ export const POST = async (req) => {
 
     const messages = [
       {
-        role: "system",
+        role: "system" as const,
         content: systemPrompt,
       },
       {
-        role: "user",
+        role: "user" as const,
         content: queryText,
       },
       {
-        role: "assistant",
+        role: "assistant" as const,
         content: `Focusing on JavaScript, here's what's relevant from the video:\n${relevantTexts}`,
       },
     ];
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: messages,
+      messages,
       stream: true,
     });
 
@@ -148,4 +157,3 @@ function analyzeUserInput(queryText) {
 
   return null; // Return null to answer technical JS questions
 }
-
