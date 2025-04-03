@@ -8,7 +8,7 @@ const Homepage = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        background: "linear-gradient(45deg, #0f172a 0%, #1e293b 100%)",
+        background: "linear-gradient(45deg, #faf9f6 0%, #f5f5f4 100%)",
         position: "fixed",
         inset: 0,
         overflow: "auto",
@@ -21,7 +21,7 @@ const Homepage = () => {
           width: "600px",
           height: "600px",
           background:
-            "radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(0, 0, 0, 0) 70%)",
+            "radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, rgba(245, 245, 244, 0) 70%)",
           borderRadius: "50%",
           filter: "blur(40px)",
           zIndex: 0,
@@ -54,14 +54,15 @@ const Homepage = () => {
         <Paper
           elevation={0}
           sx={{
-            background: "rgba(255, 255, 255, 0.03)",
+            maxWidth: "800px",
+            width: "100%",
+            p: 6,
+            background: "rgba(252, 252, 250, 0.8)",
             backdropFilter: "blur(10px)",
             borderRadius: 4,
-            p: { xs: 4, md: 6 },
-            textAlign: "center",
-            border: "1px solid rgba(255, 255, 255, 0.05)",
-            width: "100%",
+            border: "1px solid rgba(226, 232, 240, 0.8)",
             position: "relative",
+            overflow: "hidden",
             "&::before": {
               content: '""',
               position: "absolute",
@@ -69,7 +70,7 @@ const Homepage = () => {
               borderRadius: "inherit",
               padding: "1px",
               background:
-                "linear-gradient(45deg, rgba(56, 189, 248, 0.3), rgba(255, 255, 255, 0.1))",
+                "linear-gradient(45deg, rgba(56, 189, 248, 0.2), rgba(252, 252, 250, 0.5))",
               WebkitMask:
                 "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
               WebkitMaskComposite: "xor",
@@ -79,31 +80,26 @@ const Homepage = () => {
         >
           <Typography
             variant="h2"
-            component="h1"
-            gutterBottom
             sx={{
-              color: "white",
               fontWeight: 700,
-              letterSpacing: -1,
+              textAlign: "center",
               mb: 3,
-              fontSize: { xs: "2.5rem", md: "3.5rem" },
-              background: "linear-gradient(45deg, #38bdf8 30%, #818cf8 90%)",
+              background: "linear-gradient(45deg, #0ea5e9 0%, #3b82f6 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
-              textShadow: "0 0 30px rgba(56, 189, 248, 0.3)",
+              filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.05))",
             }}
           >
             JavaScript Assistant
           </Typography>
           <Typography
-            variant="h5"
+            variant="h6"
             sx={{
-              color: "rgba(255, 255, 255, 0.8)",
-              maxWidth: "800px",
-              margin: "0 auto",
-              lineHeight: 1.6,
-              fontSize: { xs: "1.1rem", md: "1.3rem" },
-              mb: 4,
+              textAlign: "center",
+              color: "#475569",
+              maxWidth: "600px",
+              mx: "auto",
+              lineHeight: 1.8,
             }}
           >
             Your AI companion for mastering JavaScript. Get instant help with
@@ -112,14 +108,11 @@ const Homepage = () => {
           </Typography>
           <Box
             sx={{
-              position: "absolute",
-              bottom: -10,
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: "150%",
+              width: "100%",
               height: "1px",
               background:
-                "linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.3), transparent)",
+                "linear-gradient(90deg, transparent 0%, rgba(56, 189, 248, 0.2) 50%, transparent 100%)",
+              mt: 6,
             }}
           />
         </Paper>

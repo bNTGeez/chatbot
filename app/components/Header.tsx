@@ -15,13 +15,13 @@ const Header = () => {
           onClick={() => router.push("/")}
           startIcon={<Home size={20} strokeWidth={1.5} />}
           sx={{
-            color: "white",
+            color: "#475569",
             textTransform: "none",
             fontSize: "1rem",
             px: 2,
             py: 1,
             "&:hover": {
-              background: "rgba(56, 189, 248, 0.1)",
+              background: "rgba(56, 189, 248, 0.08)",
             },
           }}
         >
@@ -32,17 +32,16 @@ const Header = () => {
           onClick={() => router.push("/chat")}
           startIcon={<MessageSquare size={20} strokeWidth={1.5} />}
           sx={{
-            background:
-              "linear-gradient(45deg, rgba(56, 189, 248, 0.2), rgba(129, 140, 248, 0.2))",
-            backdropFilter: "blur(10px)",
+            background: "linear-gradient(45deg, #0ea5e9, #3b82f6)",
             textTransform: "none",
             fontSize: "1rem",
             px: 3,
             py: 1,
             border: "1px solid rgba(56, 189, 248, 0.1)",
+            boxShadow: "0 2px 4px rgba(56, 189, 248, 0.1)",
             "&:hover": {
-              background:
-                "linear-gradient(45deg, rgba(56, 189, 248, 0.3), rgba(129, 140, 248, 0.3))",
+              background: "linear-gradient(45deg, #0284c7, #2563eb)",
+              boxShadow: "0 4px 8px rgba(56, 189, 248, 0.2)",
             },
           }}
         >

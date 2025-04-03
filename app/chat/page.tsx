@@ -84,7 +84,7 @@ export default function Chat() {
     <Box
       sx={{
         minHeight: "100vh",
-        background: "linear-gradient(45deg, #0f172a 0%, #1e293b 100%)",
+        background: "linear-gradient(45deg, #faf9f6 0%, #f5f5f4 100%)",
         position: "fixed",
         inset: 0,
         overflow: "auto",
@@ -97,7 +97,7 @@ export default function Chat() {
           width: "600px",
           height: "600px",
           background:
-            "radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(0, 0, 0, 0) 70%)",
+            "radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, rgba(245, 245, 244, 0) 70%)",
           borderRadius: "50%",
           filter: "blur(40px)",
           zIndex: 0,
@@ -135,11 +135,11 @@ export default function Chat() {
             width: "100%",
             maxWidth: "800px",
             height: "80vh",
-            background: "rgba(255, 255, 255, 0.03)",
+            background: "rgba(252, 252, 250, 0.8)",
             backdropFilter: "blur(10px)",
             borderRadius: 4,
             p: 3,
-            border: "1px solid rgba(255, 255, 255, 0.05)",
+            border: "1px solid rgba(226, 232, 240, 0.8)",
             position: "relative",
             "&::before": {
               content: '""',
@@ -148,7 +148,7 @@ export default function Chat() {
               borderRadius: "inherit",
               padding: "1px",
               background:
-                "linear-gradient(45deg, rgba(56, 189, 248, 0.3), rgba(255, 255, 255, 0.1))",
+                "linear-gradient(45deg, rgba(56, 189, 248, 0.2), rgba(252, 252, 250, 0.5))",
               WebkitMask:
                 "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
               WebkitMaskComposite: "xor",
@@ -168,14 +168,14 @@ export default function Chat() {
                 width: "8px",
               },
               "&::-webkit-scrollbar-track": {
-                background: "rgba(255, 255, 255, 0.05)",
+                background: "rgba(226, 232, 240, 0.5)",
                 borderRadius: "4px",
               },
               "&::-webkit-scrollbar-thumb": {
-                background: "rgba(255, 255, 255, 0.1)",
+                background: "rgba(148, 163, 184, 0.5)",
                 borderRadius: "4px",
                 "&:hover": {
-                  background: "rgba(255, 255, 255, 0.15)",
+                  background: "rgba(148, 163, 184, 0.7)",
                 },
               },
             }}
@@ -194,15 +194,15 @@ export default function Chat() {
                     maxWidth: "80%",
                     background:
                       message.role === "assistant"
-                        ? "rgba(56, 189, 248, 0.1)"
-                        : "rgba(129, 140, 248, 0.1)",
+                        ? "rgba(56, 189, 248, 0.08)"
+                        : "rgba(59, 130, 246, 0.08)",
                     borderRadius: 3,
                     p: 2,
                     border: "1px solid",
                     borderColor:
                       message.role === "assistant"
                         ? "rgba(56, 189, 248, 0.2)"
-                        : "rgba(129, 140, 248, 0.2)",
+                        : "rgba(59, 130, 246, 0.2)",
                   }}
                 >
                   <ReactMarkdown
@@ -210,7 +210,7 @@ export default function Chat() {
                       p: ({ children }) => (
                         <Typography
                           sx={{
-                            color: "rgba(255, 255, 255, 0.9)",
+                            color: "#334155",
                             fontSize: "0.95rem",
                             lineHeight: 1.6,
                           }}
@@ -222,11 +222,11 @@ export default function Chat() {
                         <Box
                           component="code"
                           sx={{
-                            background: "rgba(0, 0, 0, 0.2)",
+                            background: "rgba(226, 232, 240, 0.5)",
                             p: 0.5,
                             borderRadius: 1,
                             fontFamily: "monospace",
-                            color: "#38bdf8",
+                            color: "#0ea5e9",
                           }}
                         >
                           {children}
@@ -242,7 +242,7 @@ export default function Chat() {
             {isTyping && (
               <Typography
                 sx={{
-                  color: "rgba(255, 255, 255, 0.6)",
+                  color: "#64748b",
                   fontSize: "0.9rem",
                   textAlign: "center",
                   fontStyle: "italic",
@@ -264,22 +264,22 @@ export default function Chat() {
               placeholder="Ask about JavaScript..."
               sx={{
                 "& .MuiOutlinedInput-root": {
-                  color: "white",
-                  background: "rgba(255, 255, 255, 0.05)",
+                  color: "#334155",
+                  background: "rgba(252, 252, 250, 0.5)",
                   borderRadius: 3,
                   "& fieldset": {
-                    borderColor: "rgba(255, 255, 255, 0.1)",
+                    borderColor: "rgba(226, 232, 240, 0.8)",
                   },
                   "&:hover fieldset": {
-                    borderColor: "rgba(56, 189, 248, 0.3)",
+                    borderColor: "rgba(56, 189, 248, 0.5)",
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: "rgba(56, 189, 248, 0.5)",
+                    borderColor: "#0ea5e9",
                   },
                 },
                 "& .MuiOutlinedInput-input": {
                   "&::placeholder": {
-                    color: "rgba(255, 255, 255, 0.5)",
+                    color: "#94a3b8",
                   },
                 },
               }}
@@ -291,17 +291,16 @@ export default function Chat() {
               sx={{
                 minWidth: "fit-content",
                 px: 3,
-                background:
-                  "linear-gradient(45deg, rgba(56, 189, 248, 0.2), rgba(129, 140, 248, 0.2))",
-                backdropFilter: "blur(10px)",
+                background: "linear-gradient(45deg, #0ea5e9, #3b82f6)",
                 border: "1px solid rgba(56, 189, 248, 0.1)",
+                boxShadow: "0 2px 4px rgba(56, 189, 248, 0.1)",
                 "&:hover": {
-                  background:
-                    "linear-gradient(45deg, rgba(56, 189, 248, 0.3), rgba(129, 140, 248, 0.3))",
+                  background: "linear-gradient(45deg, #0284c7, #2563eb)",
+                  boxShadow: "0 4px 8px rgba(56, 189, 248, 0.2)",
                 },
                 "&.Mui-disabled": {
-                  background: "rgba(255, 255, 255, 0.05)",
-                  color: "rgba(255, 255, 255, 0.3)",
+                  background: "#e2e8f0",
+                  color: "#94a3b8",
                 },
               }}
             >
