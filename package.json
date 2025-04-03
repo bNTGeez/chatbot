@@ -30,7 +30,6 @@
     "youtube-transcript": "^1.2.1",
     "youtubei.js": "^10.3.0"
   },
-  "type": "module",
   "devDependencies": {
     "eslint": "^8",
     "eslint-config-next": "14.2.5"

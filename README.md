@@ -1,37 +1,71 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# JavaScript Assistant
 
-## Getting Started
+A modern AI-powered chatbot that helps users learn JavaScript through interactive conversations. Built with Next.js, TypeScript, and powered by OpenAI's GPT-4 and Pinecone vector database.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 🤖 Intelligent JavaScript Support
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Context-aware responses based on JavaScript tutorial content
+- Real-time code explanations and examples
+- Beginner-friendly explanations
+- Focused purely on JavaScript learning
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### 💬 Interactive Chat Interface
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- Real-time streaming responses
+- Code syntax highlighting
+- Markdown support for formatted responses
 
-## Learn More
+### 🧠 Smart Context Management
 
-To learn more about Next.js, take a look at the following resources:
+- Vector database for semantic search
+- Contextual memory using Pinecone
+- Relevant information retrieval
+- Accurate and focused responses
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### ⚡ Key Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- Modern, sleek UI with Material-UI
+- Real-time typing indicators
+- Error handling with user-friendly messages
+- Responsive design for all screen sizes
+- Dark theme optimized for readability
 
-## Deploy on Vercel
+## Tech Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Frontend
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-# chatbot
+- Next.js 14
+- TypeScript
+- Material-UI
+- React Markdown
+- Lucide Icons
+
+### Backend
+
+- Next.js API Routes
+- OpenAI GPT-4 Turbo
+- Pinecone Vector Database
+- YouTube Transcript API
+- Streaming API responses
+
+### Vector Search
+
+- Text embeddings with OpenAI
+- Semantic search with Pinecone
+- Chunk management for large content
+- Real-time vector updates
+
+## Deployment
+
+The application is deployed on Railway:
+
+- Full-stack deployment with Node.js support
+- Environment variable management
+- Automatic deployments from GitHub
+- Production-grade hosting
+
+## Contact
+
+Email me at tangbenjamin123@gmail.com for questions or feedback
